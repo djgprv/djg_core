@@ -54,8 +54,10 @@ class Djgcore {
 	{
 		return $content;
 	}
-	
-	public static function menuTree($parent,$level=999,$count=999,$ids=array(),$noContentLink=false)
+	/**
+	example: <?php $ids=array(4,9,15); echo Djgcore::menuTree(Page::find('/'),2,8,$ids); ?>
+	*/
+	public static function menuTree($parent,$level=2,$count=8,$ids=array(),$noContentLink=false)
 	{
 	$i=1;
 	$translate = false;
@@ -67,11 +69,12 @@ class Djgcore {
 			foreach ($childs as $child)
 					if(!in_array($child->parent()->id(), $ids)):
 						if($childs[0]->level()==1):
-							$span = '<span>00'.$i.'</span>';$i++;
+							$span = '';
+							$i++;
 						else:
 							$span = '';
 						endif;
-						$out .= '<li>'.$child->link($child->title().$span, (url_start_with($child->url) ? ' class="current"': null)).self::menuTree($child,$level,$count,$ids,$noContentLink).'</li>';
+						$out .= '<li>'.$child->link($child->title(),(url_start_with($child->slug) ? ' class="current"': null)).self::menuTree($child,$level,$count,$ids,$noContentLink).'</li>';
 					endif;
 			if(($childs[0]->level()) !=1 )$out .= '</ul>';
 		endif;
@@ -434,27 +437,27 @@ class Djgcore {
 	/*
 	
 	*/
-public static function directoryToArray($directory, $recursive) {
-	$array_items = array();
-	if ($handle = opendir($directory)) {
-		while (false !== ($file = readdir($handle))) {
-			if ($file != "." && $file != "..") {
-				if (is_dir($directory. "/" . $file)) {
-					if($recursive) {
-						$array_items = array_merge($array_items, self::directoryToArray($directory. "/" . $file, $recursive));
+	public static function directoryToArray($directory, $recursive) {
+		$array_items = array();
+		if ($handle = opendir($directory)) {
+			while (false !== ($file = readdir($handle))) {
+				if ($file != "." && $file != "..") {
+					if (is_dir($directory. "/" . $file)) {
+						if($recursive) {
+							$array_items = array_merge($array_items, self::directoryToArray($directory. "/" . $file, $recursive));
+						}
+						$file = $directory . "/" . $file;
+						$array_items[] = preg_replace("/\/\//si", "/", $file);
+					} else {
+						$file = $directory . "/" . $file;
+					//	$array_items[] = preg_replace("/\/\//si", "/", $file);
 					}
-					$file = $directory . "/" . $file;
-					$array_items[] = preg_replace("/\/\//si", "/", $file);
-				} else {
-					$file = $directory . "/" . $file;
-				//	$array_items[] = preg_replace("/\/\//si", "/", $file);
 				}
 			}
+			closedir($handle);
 		}
-		closedir($handle);
+		return $array_items;
 	}
-	return $array_items;
-}
 	/*
 	ver. 0.0.6
 	*/
@@ -475,15 +478,10 @@ public static function directoryToArray($directory, $recursive) {
 	* mail spam protect
 	* return hashed adress
 	*/
-	/** how to use
-	frontend jquery on ready:
-		$('span.djg_core_mail').css("cursor","pointer");
-		$('span.djg_core_mail').click(function() {
-			var value = $(this).attr('id').replace('#','@');
-			value = value.replace(/[^a-zA-Z0-9@.]+/g,'');
-			$(this).replaceWith(value);
-		});
-	content:
+		/** how to use
+		theme:
+		<script type="text/javascript">// <![CDATA[	$(document).ready(function(){$('span.djg_core_mail').css("cursor","pointer");$('span.djg_core_mail').click(function() {var value = $(this).attr('id').replace('#','@'); value = value.replace(/[^a-zA-Z0-9@.]+/g,''); $(this).replaceWith('<a href="mailto:'+value+'">'+value+'</a>'); }); }); 	// ]]></script>
+		content:
 		 <?php echo Djgcore::protectEmail('youremaill@domain.com'); ?></p>
 	*/
 	public static function protectEmail($adress) {
@@ -493,5 +491,21 @@ public static function directoryToArray($directory, $recursive) {
 		$new = str_replace("@", "#", $new);
 		return '<span class="djg_core_mail" id="'.$new.'">'.__('click to show adress').'</span>';
 	}
-
+	/**
+	* ver. 0.1
+	* phone number link for mobile
+	*/
+		/** how to use
+		theme:
+		<script type="text/javascript">// <![CDATA[	$(document).ready(function(){$('span.djg_core_phone').css("cursor","pointer");$('span.djg_core_phone').click(function() {var value = $(this).attr('id').replace('#','+'); value = value.replace(/[^0-9+.]+/g,''); $(this).replaceWith('<a href="tel:'+value+'">'+value+'</a>'); }); }); // ]]></script>
+		content:
+		 <?php echo Djgcore::protectPhone('+48 501-502-503'); ?></p>
+	*/
+	public static function protectPhone($phonenumber) {
+		$chars="!$%^&*()_abcdefghijklmnoprstuwzABCDEFGHIJKLMNOPRSTUWZ";
+		$new = "";
+		for($i = 0; $i < strlen($phonenumber); $i++) $new = $new.$phonenumber[$i].$chars[rand(0,strlen($chars)-1)];
+		$new = str_replace("+", "#", $new);
+		return '<span class="djg_core_phone" id="'.$new.'">'.__('click to show phone number').'</span>';
+	}
 }

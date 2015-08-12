@@ -23,11 +23,10 @@ Plugin::setInfos(array(
     'id'          => 'djg_core',
     'title'       => __('[djg] Core'),
     'description' => __('Core'),
-    'version'     => '0.0.8',
+    'version'     => '0.1.1',
    	'license'     => 'GPL',
 	'author'      => 'Michał Uchanst',
-    'website'     => 'http://www.kreacjawww.pl/',
-    'update_url'  => 'http://kreacjawww.pl/public/wolf_plugins/plugin-versions.xml'
+    'website'     => 'http://www.kreacjawww.pl/'
 ));
 Plugin::addController('djg_core', __('[djg] Core'), 'administrator', false);
 AutoLoader::addFolder(PLUGINS_ROOT.'/djg_core/models/');

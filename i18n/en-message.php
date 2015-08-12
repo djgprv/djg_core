@@ -13,7 +13,8 @@ return array(
 '[djg] Core' => '[djg] Core', 
 'Core' => 'Core', 
 /** models\Djgcore.php */ 
-'click to show adress' => 'click to show adress', 
+'click to show adress' => 'click to show adress',
+'click to show phone number' => 'click to show phone number',
 /** views\documentation.php */ 
 'Documentation' => 'Documentation', 
 );
